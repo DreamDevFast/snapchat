@@ -1,0 +1,6 @@
+{
+	"appId": "io.ionic.starter",
+	"appName": "snapchat",
+	"webDir": "build",
+	"bundledWebRuntime": false
+}

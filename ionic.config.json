@@ -1,0 +1,8 @@
+{
+  "name": "snapchat",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react",
+  "id": "3e1adff6"
+}
