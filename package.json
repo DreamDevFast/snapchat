@@ -3,10 +3,16 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "@angular/core": "^14.1.1",
+    "@awesome-cordova-plugins/camera-preview": "^5.44.0",
+    "@awesome-cordova-plugins/core": "^5.44.0",
+    "@awesome-cordova-plugins/native-storage": "^5.44.0",
+    "@capacitor-community/camera-preview": "^3.1.0",
     "@capacitor/android": "^4.0.1",
     "@capacitor/app": "4.0.1",
     "@capacitor/camera": "^4.0.1",
     "@capacitor/core": "4.0.1",
+    "@capacitor/filesystem": "^4.0.1",
     "@capacitor/haptics": "4.0.1",
     "@capacitor/keyboard": "4.0.1",
     "@capacitor/status-bar": "4.0.1",
@@ -22,6 +28,8 @@
     "@types/react-dom": "^16.9.10",
     "@types/react-router": "^5.1.11",
     "@types/react-router-dom": "^5.1.7",
+    "cordova-plugin-camera-preview": "^0.12.3",
+    "cordova-plugin-nativestorage": "^2.3.2",
     "ionicons": "^5.4.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -47,7 +55,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --transformIgnorePatterns 'node_modules/(?!(@ionic/react|@ionic/react-router|@ionic/core|@stencil/core|ionicons)/)'",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "resources": "cordova-res ios && cordova-res android && node scripts/resources.js"
   },
   "eslintConfig": {
     "extends": [
@@ -68,7 +77,8 @@
     ]
   },
   "devDependencies": {
-    "@capacitor/cli": "4.0.1"
+    "@capacitor/cli": "4.0.1",
+    "cordova-res": "^0.15.4"
   },
   "description": "An Ionic project"
 }
