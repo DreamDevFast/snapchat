@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react'
+import {useEffect, useState, useContext} from 'react'
 import { useHistory} from "react-router";
 import {
     IonContent,
@@ -12,10 +12,7 @@ import {
     IonIcon,
     IonRouterLink
 } from '@ionic/react'
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
-import { defineCustomElements } from '@ionic/pwa-elements/loader'
-import { NativeStorage } from '@awesome-cordova-plugins/native-storage/ngx';
 import { list, close, checkmark } from 'ionicons/icons'
 import {
     CameraPreview,
@@ -23,28 +20,25 @@ import {
     CameraPreviewOptions,
     CameraPreviewDimensions,
 } from '@awesome-cordova-plugins/camera-preview/ngx'
+import { Context } from '../ContextProvider'
+import axios from 'axios'
 
 const INITIAL_STATE = {
     photo: '/assets/images/default.png',
 }
+const ENDPOINT_URL = 'https://vision.googleapis.com/v1/images:annotate'
+const api_key = 'AIzaSyBb-LvJr_MuCCqqnx7BqKHc5-20lUoS5CE'
 
 const Home: React.FC = () => {
-    defineCustomElements(window)
     const history = useHistory()
+    const context = useContext(Context)
     const cameraPreview = new CameraPreview();
-    const nativeStorage = new NativeStorage();
     const [photo, setPhoto] = useState<any>(INITIAL_STATE.photo)
-    const [isLecturing, setIsLecturing] = useState<boolean>(false)
     const [isRunningCamera, setIsRunningCamera] = useState<boolean>(false)
 
     useEffect(() => {
         runCamera();
     }, []);
-
-    const sendLectureData = () => {
-        console.log('send')
-        setIsLecturing(false)
-    }
 
     const runCamera = () => {
         let options = {
@@ -62,9 +56,11 @@ const Home: React.FC = () => {
         };
 
         cameraPreview.startCamera(options)
-            .then(() => {
+            .then((res) => {
+                console.log('camera success run:', res);
                 setIsRunningCamera(true);
             })
+            .catch(err => console.log('camera run error:', err));
     }
 
     const clickShat = () => {
@@ -83,24 +79,67 @@ const Home: React.FC = () => {
             })
     }
 
-    const savePicture = async () => {
+    const savePicture = () => {
         const date = new Date();
-        await Filesystem.writeFile({
+        Filesystem.writeFile({
             path: `videoDoc/photo_${date.getFullYear()}_${date.getMonth()}_${date.getDate()}_${date.getHours()}_${date.getMinutes()}_${date.getSeconds()}.jpg'`,
             data: photo,
             directory: Directory.Documents,
             recursive: true
-        });
+        })
+            .then(() => {
+                const imgData = photo.split('data:image/jpeg;base64,')[1];
 
-        // TODO send data to API
-
-        runCamera();
+                axios({
+                    method: 'post',
+                    url: ENDPOINT_URL + `?key=${api_key}`,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    data: {
+                        requests: [
+                            {
+                                features: [
+                                    {
+                                        type: 'DOCUMENT_TEXT_DETECTION',
+                                        maxResults: 10,
+                                    },
+                                ],
+                                image: {
+                                    content: imgData,
+                                },
+                            },
+                        ],
+                    },
+                })
+                    .then(res => {
+                        context.setImgData(photo);
+                        context.setDtcData(res.data);
+                        history.push('/preview');
+                        // runCamera();
+                    })
+            })
     }
 
     return (
         <IonPage style={{ backgroundColor: isRunningCamera ? 'transparent' : '#FFF' }}>
             {
-                !isRunningCamera ? (
+                isRunningCamera ? (
+                    <>
+                        <IonFab color="primary" vertical="bottom" horizontal="center" slot="fixed">
+                            <IonFabButton color="transparent" style={{ backgroundColor: 'transparent', border: '4px solid #FFF', borderRadius: 100, marginBottom: 10 }} onClick={clickShat}>
+                            </IonFabButton>
+                        </IonFab>
+                        <IonFab color="success" vertical="bottom" horizontal="start" slot="fixed">
+                            <IonFabButton style={{ marginBottom: 10 }} onClick={async () => {
+                                await cameraPreview.stopCamera()
+                                history.push('/gallery')
+                            }}>
+                                <IonIcon icon={list} />
+                            </IonFabButton>
+                        </IonFab>
+                    </>
+                ) : (
                     <>
                         <IonImg
                             style={{
@@ -119,21 +158,6 @@ const Home: React.FC = () => {
                         <IonFab color="primary" vertical="bottom" horizontal="end" slot="fixed">
                             <IonFabButton color="success" onClick={savePicture}>
                                 <IonIcon icon={checkmark} />
-                            </IonFabButton>
-                        </IonFab>
-                    </>
-                ) : (
-                    <>
-                        <IonFab color="primary" vertical="bottom" horizontal="center" slot="fixed">
-                            <IonFabButton color="transparent" style={{ backgroundColor: 'transparent', border: '4px solid #FFF', borderRadius: 100, marginBottom: 10 }} onClick={clickShat}>
-                            </IonFabButton>
-                        </IonFab>
-                        <IonFab color="success" vertical="bottom" horizontal="end" slot="fixed">
-                            <IonFabButton style={{ marginBottom: 10 }} onClick={async () => {
-                                await cameraPreview.stopCamera()
-                                history.push('/gallery')
-                            }}>
-                                <IonIcon icon={list} />
                             </IonFabButton>
                         </IonFab>
                     </>
