@@ -1,10 +1,10 @@
 import { Redirect, Route } from 'react-router-dom'
-import {useContext} from "react";
+import { useContext } from 'react'
 import { IonApp, setupIonicReact } from '@ionic/react'
 import { IonReactRouter } from '@ionic/react-router'
 import { ellipse, square, triangle } from 'ionicons/icons'
 import Home from './pages/Home'
-import Gallery from "./pages/Gallery";
+import Gallery from './pages/Gallery'
 import ContextProvider from './ContextProvider'
 
 /* Core CSS required for Ionic components to work properly */
@@ -25,30 +25,30 @@ import '@ionic/react/css/display.css'
 
 /* Theme variables */
 import './theme/variables.css'
-import DetectingTextPreview from "./components/DetectingTextPreview";
+import DetectingTextPreview from './pages/DetectingTextPreview'
 
 setupIonicReact()
 
 console.log('home screen')
 
 const App: React.FC = () => {
-    return (
-        <IonApp>
-            <ContextProvider>
-                <IonReactRouter>
-                    <Route exact path="/">
-                        <Home/>
-                    </Route>
-                    <Route exact path="/gallery">
-                        <Gallery/>
-                    </Route>
-                    {/*<Route exact path="/preview">*/}
-                    {/*    <DetectingTextPreview/>*/}
-                    {/*</Route>*/}
-                </IonReactRouter>
-            </ContextProvider>
-        </IonApp>
-    )
+  return (
+    <IonApp>
+      <ContextProvider>
+        <IonReactRouter>
+          <Route exact path="/">
+            <Home />
+          </Route>
+          <Route exact path="/gallery">
+            <Gallery />
+          </Route>
+          <Route exact path="/preview">
+            <DetectingTextPreview />
+          </Route>
+        </IonReactRouter>
+      </ContextProvider>
+    </IonApp>
+  )
 }
 
 export default App
